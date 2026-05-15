@@ -54,7 +54,7 @@ A modern, full-stack API testing tool built with Next.js that allows users to se
 
 ```bash
 # Clone the repository
-git clone https://github.com/YOUR_USERNAME/api-tester.git
+git clone https://github.com/aishwarya-m-260803/api-tester.git
 
 # Navigate into project
 cd api-tester
