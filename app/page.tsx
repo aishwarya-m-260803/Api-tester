@@ -1,65 +1,125 @@
-import Image from "next/image";
+"use client"
+import { useState } from "react"
+import axios from "axios"
 
 export default function Home() {
+  const [url, setUrl] = useState("")
+  const [method, setMethod] = useState("GET")
+  const [response, setResponse] = useState<any>(null)
+  const [body, setBody] = useState("")
+  const [loading, setLoading] = useState(false)
+
+  async function handleRequest() {
+    setLoading(true)
+    setResponse(null)
+
+    try {
+      const res = await axios.post("/api/proxy", {
+        url, 
+        method, 
+        body: method === "POST" || method === "PUT" ? body : undefined  
+      })
+
+      setResponse(res.data)
+
+      const data = res.data
+      setResponse(data)
+    } catch (error) {
+      setResponse({ error: "Failed to fetch data" })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <div className="min-h-screen bg-black flex items-center justify-center p-6 relative overflow-hidden">
+
+      <div className="absolute w-[500px] h-[500px] bg-purple-600 opacity-20 blur-3xl rounded-full top-[-100px] left-[-100px]" />
+      <div className="absolute w-[400px] h-[400px] bg-cyan-500 opacity-20 blur-3xl rounded-full bottom-[-100px] right-[-100px]" />
+
+      <div className="w-full max-w-5xl space-y-6 relative z-10">
+
+        {/* Heading */}
+        <h1 className="text-4xl font-bold text-center tracking-tight">
+          <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
+            ⚡ API Tester
+          </span>
+        </h1>
+
+        {/* Request Card */}
+        <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 shadow-2xl space-y-5">
+
+          {/* URL */}
+          <div>
+            <label className="text-sm text-gray-300 mb-1 block">Request URL</label>
+            <input
+              className="w-full p-3 rounded-lg bg-black/60 border border-white/20 text-white placeholder-gray-500 focus:ring-2 focus:ring-purple-500 outline-none"
+              placeholder="Enter API endpoint, e.g. https://api.example.com/data"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+          </div>
+
+          {/* Method */}
+          <div>
+            <label className="text-sm text-gray-300 mb-1 block">Method</label>
+            <select
+              className="w-full p-3 rounded-lg bg-black/60 border border-white/20 text-white focus:ring-2 focus:ring-purple-500"
+              value={method}
+              onChange={(e) => setMethod(e.target.value)}
+            >
+              <option>GET</option>
+              <option>POST</option>
+              <option>PUT</option>
+              <option>DELETE</option>
+            </select>
+          </div>
+
+          {/* Body */}
+          {(method === "POST" || method === "PUT") && (
+            <div>
+              <label className="text-sm text-gray-300 mb-1 block">Request Body</label>
+              <textarea
+                className="w-full p-3 rounded-lg bg-black/60 border border-white/20 text-white placeholder-gray-500 focus:ring-2 focus:ring-pink-500 outline-none h-36 resize-none"
+                placeholder='{ "name": "Product", "data": { "price": 100 } }'
+                value={body}
+                onChange={(e) => setBody(e.target.value)}
+              />
+            </div>
+          )}
+
+          {/* SEND BUTTON */}
+          <button
+            onClick={handleRequest}
+            className="w-full py-3 rounded-lg font-semibold text-black bg-gradient-to-r from-purple-400 to-cyan-400 hover:scale-[1.02] transition-all duration-200 shadow-lg flex justify-center items-center gap-2"
           >
-            Documentation
-          </a>
+            {loading ? "Sending..." : "Send Request "}
+          </button>
         </div>
-      </main>
+
+        {/*  Response Panel */}
+        <div className="bg-white/5 border border-white/10 backdrop-blur-xl rounded-2xl p-6 shadow-2xl">
+
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold text-white">
+              Response
+            </h2>
+
+          </div>
+
+          <div className="bg-black border border-green-500/20 text-green-400 p-4 rounded-lg font-mono text-sm max-h-[400px] overflow-auto">
+            {loading
+              ? "Loading..."
+              : response
+              ? JSON.stringify(response, null, 2)
+              : "No response yet..."}
+          </div>
+        </div>
+
+      </div>
     </div>
-  );
+  )
 }
+
+//https://api.restful-api.dev/collections
+//https://free-apis.github.io/#/categories/Books
