@@ -68,9 +68,9 @@ npm run dev
 
 ---
 
-##  Live Demo (Optional)
+##  Live Demo 
 
-Add your deployed link here (e.g., Vercel)
+https://api-tester-lovat.vercel.app
 
 ---
 
